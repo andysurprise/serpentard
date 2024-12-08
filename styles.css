@@ -1,0 +1,77 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  margin: 0;
+  background-color: #333;
+  color: #fff;
+}
+
+.hidden {
+  display: none;
+}
+
+#title-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #222;
+  color: #00ff00;
+}
+
+#title-screen h1 {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+#title-screen p {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+#smiling-snake {
+  font-size: 4rem;
+}
+
+#game-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+#game-board {
+  position: relative;
+  width: 400px;
+  height: 400px;
+  background-color: #111;
+  border: 2px solid #00ff00;
+}
+
+#info {
+  margin-top: 20px;
+}
+
+.snake {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  background-color: #00ff00;
+}
+
+.muggle, .wizard {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
+
+.muggle {
+  background-color: #00aaff;
+}
+
+.wizard {
+  background-color: #ff0000;
+}
