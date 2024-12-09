@@ -3,23 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Salazar Serpentard</title>
+  <title>Serpentard</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div id="title-screen">
-    <h1>Salazar Serpentard</h1>
-    <p>Press <strong>Enter</strong> to Start</p>
-    <div id="smiling-snake">🐍</div>
+    <h1>Serpentard</h1>
+    <p class="dancing-wizard">🧙‍♂️ 🐍</p>
   </div>
-
-  <div id="game-container" class="hidden">
-    <div id="game-board"></div>
-    <div id="info">
-      <p>Score: <span id="score">0</span></p>
-    </div>
+  <div id="game-screen">
+    <canvas id="gameCanvas"></canvas>
+    <button id="play-button">Play</button>
   </div>
-
+  <div id="end-screen">
+    <h1 id="end-message"></h1>
+    <button id="restart-button">Play Again</button>
+  </div>
   <script src="script.js"></script>
 </body>
 </html>
