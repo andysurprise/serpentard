@@ -1,53 +1,131 @@
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  text-align: center;
-  background-color: #121212;
-  color: white;
+const titleScreen = document.getElementById("title-screen");
+const gameScreen = document.getElementById("game-screen");
+const endScreen = document.getElementById("end-screen");
+const playButton = document.getElementById("play-button");
+const restartButton = document.getElementById("restart-button");
+const endMessage = document.getElementById("end-message");
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 400;
+canvas.height = 400;
+
+let snake = [{ x: 200, y: 200 }];
+let snakeDirection = { x: 2, y: 2 };
+let snakeSpeed = 2;
+let target = {};
+let isWizard = false;
+let score = 0;
+let gameRunning = false;
+const nonWizardEmojis = ["🍎", "🍇", "🍓", "🍔", "🍟", "🍩", "🍕", "🍿", "🍰", "🥝"];
+const wizardEmoji = "🧙‍♂️";
+
+function resetGame() {
+  snake = [{ x: 200, y: 200 }];
+  snakeDirection = { x: 2, y: 2 };
+  snakeSpeed = 2;
+  score = 0;
+  spawnTarget();
+  gameRunning = true;
 }
 
-#title-screen, #end-screen {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  background-color: #008000;
-  color: white;
+function spawnTarget() {
+  const isTargetWizard = Math.random() < 0.2;
+  target = {
+    x: Math.random() * (canvas.width - 20) + 10,
+    y: Math.random() * (canvas.height - 20) + 10,
+    emoji: isTargetWizard ? wizardEmoji : randomNonWizardEmoji(),
+    isWizard: isTargetWizard,
+  };
 }
 
-.dancing-wizard {
-  font-size: 50px;
-  animation: dance 0.5s infinite alternate;
+function randomNonWizardEmoji() {
+  return nonWizardEmojis[Math.floor(Math.random() * nonWizardEmojis.length)];
 }
 
-@keyframes dance {
-  0% { transform: translateY(-10px); }
-  100% { transform: translateY(10px); }
+function drawSnake() {
+  snake.forEach(segment => {
+    ctx.fillStyle = "lime";
+    ctx.fillRect(segment.x, segment.y, 10, 10);
+  });
 }
 
-#game-screen {
-  display: none;
-  position: relative;
+function drawTarget() {
+  ctx.font = "20px Arial";
+  ctx.fillText(target.emoji, target.x, target.y);
 }
 
-canvas {
-  display: block;
-  margin: 20px auto;
-  background-color: black;
-  border: 3px solid white;
+function updateSnake() {
+  // Bounce off walls
+  const head = snake[0];
+  if (head.x <= 0 || head.x >= canvas.width - 10) snakeDirection.x *= -1;
+  if (head.y <= 0 || head.y >= canvas.height - 10) snakeDirection.y *= -1;
+
+  // Move snake
+  snake[0].x += snakeDirection.x;
+  snake[0].y += snakeDirection.y;
+
+  // Detect collision with target
+  if (Math.abs(head.x - target.x) < 15 && Math.abs(head.y - target.y) < 15) {
+    if (target.isWizard) {
+      gameOver("The snake ate a wizard!");
+    } else {
+      score++;
+      snake.push({ x: snake[snake.length - 1].x, y: snake[snake.length - 1].y });
+      if (score % 10 === 0) snakeSpeed++;
+      spawnTarget();
+    }
+  }
 }
 
-button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 15px 20px;
-  border: none;
-  border-radius: 5px;
-  font-size: 18px;
-  cursor: pointer;
+function drawGame() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawSnake();
+  drawTarget();
 }
 
-button:hover {
-  background-color: #45a049;
+function gameOver(message) {
+  gameRunning = false;
+  endMessage.textContent = message;
+  gameScreen.style.display = "none";
+  endScreen.style.display = "flex";
 }
+
+function gameLoop() {
+  if (gameRunning) {
+    updateSnake();
+    drawGame();
+    setTimeout(gameLoop, 1000 / (snakeSpeed * 10));
+  }
+}
+
+// Event Listeners
+playButton.addEventListener("click", () => {
+  titleScreen.style.display = "none";
+  gameScreen.style.display = "block";
+  resetGame();
+  gameLoop();
+});
+
+restartButton.addEventListener("click", () => {
+  endScreen.style.display = "none";
+  titleScreen.style.display = "flex";
+});
+
+// Target click listener
+canvas.addEventListener("click", (e) => {
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+
+  if (Math.abs(x - target.x) < 15 && Math.abs(y - target.y) < 15) {
+    snake[0].x = target.x;
+    snake[0].y = target.y;
+  }
+});
+
+// Initial Delay for Title Screen
+setTimeout(() => {
+  titleScreen.style.display = "none";
+  gameScreen.style.display = "block";
+}, 5000);
