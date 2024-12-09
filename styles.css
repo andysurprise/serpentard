@@ -22,7 +22,8 @@ body {
 }
 
 @keyframes dance {
-  transform: translateY(-10px);
+  0% { transform: translateY(-10px); }
+  100% { transform: translateY(10px); }
 }
 
 #game-screen {
