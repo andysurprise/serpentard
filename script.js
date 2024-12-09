@@ -11,31 +11,34 @@ canvas.width = 400;
 canvas.height = 400;
 
 let snake = [{ x: 200, y: 200 }];
-let snakeDirection = { x: 2, y: 2 };
 let snakeSpeed = 2;
+let snakeDirection = { x: 2, y: 2 };
 let target = {};
-let isWizard = false;
 let score = 0;
 let gameRunning = false;
+
+// Emojis
 const nonWizardEmojis = ["🍎", "🍇", "🍓", "🍔", "🍟", "🍩", "🍕", "🍿", "🍰", "🥝"];
 const wizardEmoji = "🧙‍♂️";
 
+// Reset the game
 function resetGame() {
   snake = [{ x: 200, y: 200 }];
-  snakeDirection = { x: 2, y: 2 };
   snakeSpeed = 2;
+  snakeDirection = { x: 2, y: 2 };
   score = 0;
   spawnTarget();
   gameRunning = true;
 }
 
+// Spawn a new target
 function spawnTarget() {
-  const isTargetWizard = Math.random() < 0.2;
+  const isWizard = Math.random() < 0.2; // 20% chance of wizard
   target = {
-    x: Math.random() * (canvas.width - 20) + 10,
-    y: Math.random() * (canvas.height - 20) + 10,
-    emoji: isTargetWizard ? wizardEmoji : randomNonWizardEmoji(),
-    isWizard: isTargetWizard,
+    x: Math.random() * (canvas.width - 30) + 15,
+    y: Math.random() * (canvas.height - 30) + 15,
+    emoji: isWizard ? wizardEmoji : randomNonWizardEmoji(),
+    isWizard: isWizard,
   };
 }
 
@@ -43,6 +46,7 @@ function randomNonWizardEmoji() {
   return nonWizardEmojis[Math.floor(Math.random() * nonWizardEmojis.length)];
 }
 
+// Draw the snake
 function drawSnake() {
   snake.forEach(segment => {
     ctx.fillStyle = "lime";
@@ -50,50 +54,45 @@ function drawSnake() {
   });
 }
 
+// Draw the target
 function drawTarget() {
   ctx.font = "20px Arial";
   ctx.fillText(target.emoji, target.x, target.y);
 }
 
+// Update the snake's position
 function updateSnake() {
-  const head = { x: snake[0].x + snakeDirection.x, y: snake[0].y + snakeDirection.y };
+  const head = snake[0];
 
-  // Wall collision
-  if (head.x < 0 || head.x > canvas.width - 10 || head.y < 0 || head.y > canvas.height - 10) {
-    gameOver("The snake hit the wall!");
-    return;
-  }
+  // Bounce off walls
+  if (head.x <= 0 || head.x >= canvas.width - 10) snakeDirection.x *= -1;
+  if (head.y <= 0 || head.y >= canvas.height - 10) snakeDirection.y *= -1;
 
-  // Snake collision with itself
-  for (let segment of snake) {
-    if (head.x === segment.x && head.y === segment.y) {
-      gameOver("The snake ate itself!");
-      return;
-    }
-  }
+  // Move the snake
+  head.x += snakeDirection.x;
+  head.y += snakeDirection.y;
 
-  snake.unshift(head);
+  // Check if the snake eats the target
   if (Math.abs(head.x - target.x) < 15 && Math.abs(head.y - target.y) < 15) {
     if (target.isWizard) {
       gameOver("The snake ate a wizard!");
     } else {
       score++;
-      if (score % 10 === 0) {
-        snakeSpeed++;
-      }
+      snake.push({ x: snake[snake.length - 1].x, y: snake[snake.length - 1].y });
+      if (score % 10 === 0) snakeSpeed++;
       spawnTarget();
     }
-  } else {
-    snake.pop();
   }
 }
 
+// Draw the game elements
 function drawGame() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawSnake();
   drawTarget();
 }
 
+// Handle game over
 function gameOver(message) {
   gameRunning = false;
   endMessage.textContent = message;
@@ -101,11 +100,12 @@ function gameOver(message) {
   endScreen.style.display = "flex";
 }
 
+// Game loop
 function gameLoop() {
   if (gameRunning) {
     updateSnake();
     drawGame();
-    setTimeout(gameLoop, 1000 / (snakeSpeed * 10));
+    setTimeout(gameLoop, 1000 / 60);
   }
 }
 
@@ -122,8 +122,5 @@ restartButton.addEventListener("click", () => {
   titleScreen.style.display = "flex";
 });
 
-// Initial Delay for Title Screen
-setTimeout(() => {
-  titleScreen.style.display = "none";
-  gameScreen.style.display = "block";
-}, 5000);
+// Start the game
+resetGame();
